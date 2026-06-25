@@ -151,6 +151,13 @@ $(".close-form").on("click", function () {
   $(form).find(".checkbox-field, .checkbox-label").removeClass("checked");
 });
 
+// Close the form when clicking outside the banner (on the backdrop)
+$(".form-modal").on("click", function (e) {
+  if (!$(e.target).closest(".form-menu, .close-form").length) {
+    $(".close-form").trigger("click");
+  }
+});
+
 /* Email Window Form */
 
 document.addEventListener("DOMContentLoaded", function () {
