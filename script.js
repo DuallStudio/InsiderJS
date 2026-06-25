@@ -207,6 +207,29 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
+/* Navbar arrow fix
+   The nav button holds two Lottie arrows (.white-arrow / .black-arrow) that
+   cross-fade when the navbar changes color on scroll. By default they sit
+   stacked in normal flow, so during the color change the second arrow
+   duplicates and drops below the circle. Stacking them in the same grid cell
+   keeps both arrows centered on top of each other inside the ball, so only
+   the opacity changes — no jump, no duplicate. */
+(function fixNavbarArrow() {
+  const style = document.createElement("style");
+  style.textContent = `
+    .btn-icon-wrapper.nav {
+      display: grid !important;
+      place-items: center;
+    }
+    .btn-icon-wrapper.nav .arrow-icon {
+      grid-area: 1 / 1;
+      width: 14px;
+      height: 14px;
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
 // Open Login
 // $(".open-login").on("click", function () {
 //   $(".login-modal").addClass("active");
