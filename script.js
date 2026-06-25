@@ -214,25 +214,32 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-/* Navbar arrow fix
-   The nav button holds two Lottie arrows (.white-arrow / .black-arrow) that
-   cross-fade when the navbar changes color on scroll. By default they sit
-   stacked in normal flow, so during the color change the second arrow
-   duplicates and drops below the circle. Stacking them in the same grid cell
-   keeps both arrows centered on top of each other inside the ball, so only
-   the opacity changes — no jump, no duplicate. */
-(function fixNavbarArrow() {
+/* Arrow icon fix
+   Every circular icon button (.btn-icon-wrapper — navbar and hero/page
+   buttons alike) holds two Lottie arrows (.white-arrow / .black-arrow) that
+   cross-fade depending on the background. By default they sit stacked in
+   normal flow, so the second arrow duplicates below the circle and, when the
+   circle is resized, the wrong-coloured arrow ends up on top (e.g. an
+   invisible white arrow on a white circle). Stacking both arrows in the same
+   grid cell keeps them centered on top of each other inside the circle, so
+   only the opacity changes — no jump, no duplicate, no vanishing arrow. */
+(function fixArrowIcons() {
   const style = document.createElement("style");
   style.textContent = `
-    .btn-icon-wrapper.nav {
+    .btn-icon-wrapper {
       display: grid !important;
       place-items: center;
     }
-    .btn-icon-wrapper.nav .arrow-icon {
+    .btn-icon-wrapper .arrow-icon {
       grid-area: 1 / 1;
       width: 14px;
       height: 14px;
     }
+    /* Keep the black arrow on top so it stays visible on light/white circles.
+       On dark backgrounds the cross-fade sets the black arrow to opacity 0,
+       so the white arrow underneath still shows through. */
+    .btn-icon-wrapper .black-arrow { z-index: 2; }
+    .btn-icon-wrapper .white-arrow { z-index: 1; }
   `;
   document.head.appendChild(style);
 })();
