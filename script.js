@@ -82,6 +82,7 @@ $(document).ready(function () {
   });
 });
 
+
 // Wait for Webflow to load the page before running the script
 Webflow.push(function () {
   // Check if the viewport width is 991px or greater
