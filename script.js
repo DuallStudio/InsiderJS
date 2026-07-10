@@ -234,18 +234,22 @@ document.addEventListener("DOMContentLoaded", function () {
       place-items: center !important;
       overflow: hidden;
     }
+    /* Fill the circle's padded box relative to the circle itself (which is
+       sized in rem and scales up on wide viewports) instead of a fixed px,
+       so the arrow stays centered and proportional at any resolution. */
     .btn-icon-wrapper .arrow-icon {
       grid-area: 1 / 1 !important;
-      width: 14px !important;
-      height: 14px !important;
+      width: 100% !important;
+      height: 100% !important;
       display: grid !important;
       place-items: center !important;
     }
-    /* Clamp the Lottie SVG to the arrow-icon box so it can't overflow the
-       circle at larger viewports. */
+    /* Keep the Lottie SVG inside the box, scaling with it while preserving
+       the arrow's aspect ratio (no stretching on non-square buttons). */
     .btn-icon-wrapper .arrow-icon svg {
-      width: 100% !important;
+      width: auto !important;
       height: 100% !important;
+      max-width: 100% !important;
       display: block !important;
     }
     /* Keep the black arrow on top so it stays visible on light/white circles.
