@@ -216,73 +216,69 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 /* Arrow icon fix
-   Every circular icon button (.btn-icon-wrapper — navbar and hero/page
-   buttons alike) holds Lottie arrows (.white-arrow / .black-arrow) that
-   cross-fade depending on the background. Two problems show up, especially at
-   larger resolutions:
-     1. By default the arrows sit stacked in normal flow, so the second arrow
-        duplicates below the circle. Stacking both in the same grid cell keeps
-        them centered on top of each other — only the opacity changes.
-     2. The Lottie SVG itself is not constrained to the arrow-icon box, so it
-        renders oversized and pokes out the top-right of the circle. Clamping
-        the SVG to 100% of the (14px) box and clipping wrapper overflow keeps
-        the arrow inside the circle, centered, no matter how the circle scales. */
+   Each circular icon button (.btn-icon-wrapper) holds two Lottie arrows:
+   .white-arrow and .black-arrow. Webflow natively hides the black one
+   (.arrow-icon.black-arrow { display:none }), so interior pages show the
+   white arrow on their dark circle with no help from us. The HOME page runs
+   its own GSAP nav timeline that sets BOTH arrows to display:block and
+   cross-fades them (white circle+black arrow at top -> dark circle+white
+   arrow on scroll).
+
+   The only thing we need to fix is the layout: when both arrows are visible
+   (home), they sit side-by-side in normal flow and push each other off
+   centre, and the Lottie SVG can overflow the circle at large resolutions.
+   Stacking both arrows in a single centred grid cell and clamping the SVG to
+   the padded box solves both — WITHOUT touching `display`, so Webflow's
+   native black-arrow hiding keeps working on interior pages. */
 (function fixArrowIcons() {
   const style = document.createElement("style");
   style.textContent = `
     .btn-icon-wrapper {
       display: grid !important;
       place-items: center !important;
-      overflow: hidden;
+      overflow: hidden !important;
     }
-    /* Fill the circle's padded box relative to the circle itself (which is
-       sized in rem and scales up on wide viewports) instead of a fixed px,
-       so the arrow stays centered and proportional at any resolution. */
+    /* Both arrows share one grid cell so they overlap, centred, instead of
+       taking separate space. The display property is intentionally left
+       alone so Webflow's native black-arrow hiding keeps working. */
     .btn-icon-wrapper .arrow-icon {
       grid-area: 1 / 1 !important;
       width: 100% !important;
       height: 100% !important;
-      display: grid !important;
-      place-items: center !important;
     }
-    /* Keep the Lottie SVG inside the box, scaling with it while preserving
-       the arrow's aspect ratio (no stretching on non-square buttons). */
+    /* Fill the box symmetrically and scale with the circle (which is sized in
+       rem and grows on wide viewports); the Lottie SVG's preserveAspectRatio
+       keeps the arrow shape and centres it. */
     .btn-icon-wrapper .arrow-icon svg {
-      width: auto !important;
+      width: 100% !important;
       height: 100% !important;
-      max-width: 100% !important;
       display: block !important;
     }
-    /* Keep the black arrow on top so it stays visible on light/white circles.
-       On dark backgrounds the cross-fade sets the black arrow to opacity 0,
-       so the white arrow underneath still shows through. */
-    .btn-icon-wrapper .black-arrow { z-index: 2 !important; }
-    .btn-icon-wrapper .white-arrow { z-index: 1 !important; }
 
-    /* Only the home page runs the GSAP nav timeline that fades the circle
-       from white (black arrow) at the top to dark (white arrow) on scroll —
-       leave that alone. On every other page the members circle is permanently
-       dark, so force the white arrow there. The 'nav-dark-icon' class is added
-       to <html> below for non-home pages. */
-    html.nav-dark-icon .button-icon.menu .arrow-icon.black-arrow {
-      opacity: 0 !important;
-      visibility: hidden !important;
+    /* Members nav button (.btn-icon-wrapper.nav): the Lottie arrow has an
+       autoplay fly-out that looks off-centre when scaled up on wide screens.
+       Replace it with a static, always-centred arrow drawn via CSS mask.
+       Colours and the home-page scroll cross-fade still work because we only
+       recolour the two arrow layers and drive them with opacity as before. */
+    .btn-icon-wrapper.nav .arrow-icon svg { display: none !important; }
+    .btn-icon-wrapper.nav .arrow-icon {
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5.5 18.5 18.5 5.5M8.5 5.5H18.5V15.5'/%3E%3C/svg%3E") center / 55% 55% no-repeat;
+              mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5.5 18.5 18.5 5.5M8.5 5.5H18.5V15.5'/%3E%3C/svg%3E") center / 55% 55% no-repeat;
     }
-    html.nav-dark-icon .button-icon.menu .arrow-icon.white-arrow {
-      opacity: 1 !important;
-      visibility: visible !important;
-    }
+    .btn-icon-wrapper.nav .white-arrow { background-color: #ffffff !important; }
+    .btn-icon-wrapper.nav .black-arrow { background-color: #201f1d !important; }
+
+    /* Latest Insights slider controls: keep prev/next on the left and push the
+       "View all" button to the far right. */
+    .slider-btn-wrap { align-items: center !important; }
+    .slider-btn-wrap .button-icon { margin-left: auto !important; }
+
+    /* Latest Insights cards: make every card fill its slide (desktop base CSS
+       pins a fixed 27.8125em width) so they're all the same size. */
+    .swiper.blog .swiper-slide { height: auto !important; }
+    .swiper.blog .blog-section-item { width: 100% !important; height: 100% !important; }
   `;
   document.head.appendChild(style);
-
-  // Flag non-home pages so the CSS above can force the white arrow on their
-  // permanently-dark members circle. Home ("/", "/pt/home", etc.) is left to
-  // the page's own GSAP scroll animation.
-  const path = (window.location.pathname || "/").replace(/\/+$/, "") || "/";
-  const homePaths = ["/", "/index.html", "/pt", "/pt/home", "/pt/index.html"];
-  if (homePaths.indexOf(path) === -1) {
-    document.documentElement.classList.add("nav-dark-icon");
-  }
 })();
 
 // Open Login
