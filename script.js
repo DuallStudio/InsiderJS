@@ -207,6 +207,15 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
+/* Members nav button: show the white arrow on the dark circle */
+document.addEventListener("DOMContentLoaded", function () {
+  const style = document.createElement("style");
+  style.textContent =
+    ".button-icon.menu .arrow-icon.black-arrow { opacity: 0 !important; }" +
+    ".button-icon.menu .arrow-icon.white-arrow { opacity: 1 !important; }";
+  document.head.appendChild(style);
+});
+
 // Open Login
 // $(".open-login").on("click", function () {
 //   $(".login-modal").addClass("active");
