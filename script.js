@@ -254,12 +254,30 @@ document.addEventListener("DOMContentLoaded", function () {
     .btn-icon-wrapper .black-arrow { z-index: 2 !important; }
     .btn-icon-wrapper .white-arrow { z-index: 1 !important; }
 
-    /* Members nav button always sits on a dark circle: force its white arrow
-       regardless of whether the cross-fade runs. */
-    .button-icon.menu .arrow-icon.black-arrow { opacity: 0 !important; }
-    .button-icon.menu .arrow-icon.white-arrow { opacity: 1 !important; }
+    /* Only the home page runs the GSAP nav timeline that fades the circle
+       from white (black arrow) at the top to dark (white arrow) on scroll —
+       leave that alone. On every other page the members circle is permanently
+       dark, so force the white arrow there. The 'nav-dark-icon' class is added
+       to <html> below for non-home pages. */
+    html.nav-dark-icon .button-icon.menu .arrow-icon.black-arrow {
+      opacity: 0 !important;
+      visibility: hidden !important;
+    }
+    html.nav-dark-icon .button-icon.menu .arrow-icon.white-arrow {
+      opacity: 1 !important;
+      visibility: visible !important;
+    }
   `;
   document.head.appendChild(style);
+
+  // Flag non-home pages so the CSS above can force the white arrow on their
+  // permanently-dark members circle. Home ("/", "/pt/home", etc.) is left to
+  // the page's own GSAP scroll animation.
+  const path = (window.location.pathname || "/").replace(/\/+$/, "") || "/";
+  const homePaths = ["/", "/index.html", "/pt", "/pt/home", "/pt/index.html"];
+  if (homePaths.indexOf(path) === -1) {
+    document.documentElement.classList.add("nav-dark-icon");
+  }
 })();
 
 // Open Login
