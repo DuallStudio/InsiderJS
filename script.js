@@ -257,11 +257,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     /* Members nav button (.btn-icon-wrapper.nav): draw a static arrow on the
        wrapper itself, so the icon does not depend on Webflow/Lottie layer
-       visibility. mix-blend-mode makes it black on the white circle and white
+       visibility. JS below keeps the arrow dark on the white circle and white
        after the GSAP nav timeline turns the circle dark. */
     .btn-icon-wrapper.nav {
       position: relative !important;
       isolation: isolate !important;
+      --nav-arrow-color: #201f1d;
     }
     .btn-icon-wrapper.nav .arrow-icon {
       opacity: 0 !important;
@@ -273,8 +274,7 @@ document.addEventListener("DOMContentLoaded", function () {
       inset: 0 !important;
       z-index: 1 !important;
       pointer-events: none !important;
-      background-color: #ffffff !important;
-      mix-blend-mode: difference !important;
+      background-color: var(--nav-arrow-color) !important;
       -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5.5 18.5 18.5 5.5M8.5 5.5H18.5V15.5'/%3E%3C/svg%3E") center / 55% 55% no-repeat;
               mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5.5 18.5 18.5 5.5M8.5 5.5H18.5V15.5'/%3E%3C/svg%3E") center / 55% 55% no-repeat;
     }
@@ -290,6 +290,27 @@ document.addEventListener("DOMContentLoaded", function () {
     .swiper.blog .blog-section-item { width: 100% !important; height: 100% !important; }
   `;
   document.head.appendChild(style);
+
+  function syncNavArrowColor() {
+    document.querySelectorAll(".btn-icon-wrapper.nav").forEach((wrapper) => {
+      const bg = getComputedStyle(wrapper).backgroundColor;
+      const channels = bg.match(/\d+(\.\d+)?/g);
+
+      if (!channels || channels.length < 3) return;
+
+      const [r, g, b] = channels.map(Number);
+      const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+      wrapper.style.setProperty(
+        "--nav-arrow-color",
+        brightness > 150 ? "#201f1d" : "#ffffff"
+      );
+    });
+  }
+
+  window.addEventListener("load", syncNavArrowColor);
+  window.addEventListener("scroll", syncNavArrowColor, { passive: true });
+  window.addEventListener("resize", syncNavArrowColor);
+  requestAnimationFrame(syncNavArrowColor);
 })();
 
 // Open Login
