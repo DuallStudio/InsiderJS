@@ -255,12 +255,12 @@ document.addEventListener("DOMContentLoaded", function () {
       display: block !important;
     }
 
-    /* Members nav button (.btn-icon-wrapper.nav): draw a static arrow on the
-       wrapper itself, so the icon does not depend on Webflow/Lottie layer
-       visibility. JS below keeps the arrow dark on the white circle and white
-       after the GSAP nav timeline turns the circle dark. */
+    /* Members nav button (.btn-icon-wrapper.nav): draw a static arrow as a real
+       grid item so it inherits the wrapper's place-items:center and is always
+       dead-centre, instead of depending on Webflow/Lottie layer visibility.
+       JS below keeps the arrow dark on the white circle and white after the
+       GSAP nav timeline turns the circle dark. */
     .btn-icon-wrapper.nav {
-      position: relative !important;
       isolation: isolate !important;
       --nav-arrow-color: #201f1d;
     }
@@ -268,15 +268,21 @@ document.addEventListener("DOMContentLoaded", function () {
       opacity: 0 !important;
       visibility: hidden !important;
     }
-    .btn-icon-wrapper.nav::after {
-      content: "" !important;
-      position: absolute !important;
-      inset: 0 !important;
+    /* The glyph shares the single grid cell with the (hidden) arrows and is
+       centred by the wrapper's place-items:center. aspect-ratio:1 forces it
+       square so the mask never distorts or drifts on a non-square wrapper. */
+    .btn-icon-wrapper.nav .nav-arrow-glyph {
+      grid-area: 1 / 1 !important;
+      align-self: center !important;
+      justify-self: center !important;
+      width: 55% !important;
+      height: auto !important;
+      aspect-ratio: 1 / 1 !important;
       z-index: 1 !important;
       pointer-events: none !important;
       background-color: var(--nav-arrow-color) !important;
-      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5.5 18.5 18.5 5.5M8.5 5.5H18.5V15.5'/%3E%3C/svg%3E") center / 55% 55% no-repeat;
-              mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5.5 18.5 18.5 5.5M8.5 5.5H18.5V15.5'/%3E%3C/svg%3E") center / 55% 55% no-repeat;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5.5 18.5 18.5 5.5M8.5 5.5H18.5V15.5'/%3E%3C/svg%3E") center / contain no-repeat;
+              mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5.5 18.5 18.5 5.5M8.5 5.5H18.5V15.5'/%3E%3C/svg%3E") center / contain no-repeat;
     }
 
     /* Latest Insights slider controls: keep prev/next on the left and push the
@@ -290,6 +296,15 @@ document.addEventListener("DOMContentLoaded", function () {
     .swiper.blog .blog-section-item { width: 100% !important; height: 100% !important; }
   `;
   document.head.appendChild(style);
+
+  // Add the centred arrow glyph as a real grid item inside each nav wrapper.
+  document.querySelectorAll(".btn-icon-wrapper.nav").forEach((wrapper) => {
+    if (!wrapper.querySelector(".nav-arrow-glyph")) {
+      const glyph = document.createElement("span");
+      glyph.className = "nav-arrow-glyph";
+      wrapper.appendChild(glyph);
+    }
+  });
 
   function syncNavArrowColor() {
     document.querySelectorAll(".btn-icon-wrapper.nav").forEach((wrapper) => {
