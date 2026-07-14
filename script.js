@@ -255,18 +255,29 @@ document.addEventListener("DOMContentLoaded", function () {
       display: block !important;
     }
 
-    /* Members nav button (.btn-icon-wrapper.nav): the Lottie arrow has an
-       autoplay fly-out that looks off-centre when scaled up on wide screens.
-       Replace it with a static, always-centred arrow drawn via CSS mask.
-       Colours and the home-page scroll cross-fade still work because we only
-       recolour the two arrow layers and drive them with opacity as before. */
-    .btn-icon-wrapper.nav .arrow-icon svg { display: none !important; }
-    .btn-icon-wrapper.nav .arrow-icon {
-      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5.5 18.5 18.5 5.5M8.5 5.5H18.5V15.5'/%3E%3C/svg%3E") center / 55% 55% no-repeat;
-              mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5.5 18.5 18.5 5.5M8.5 5.5H18.5V15.5'/%3E%3C/svg%3E") center / 55% 55% no-repeat;
+    /* Members nav button (.btn-icon-wrapper.nav): draw a static arrow on the
+       wrapper itself, so the icon does not depend on Webflow/Lottie layer
+       visibility. mix-blend-mode makes it black on the white circle and white
+       after the GSAP nav timeline turns the circle dark. */
+    .btn-icon-wrapper.nav {
+      position: relative !important;
+      isolation: isolate !important;
     }
-    .btn-icon-wrapper.nav .white-arrow { background-color: #ffffff !important; }
-    .btn-icon-wrapper.nav .black-arrow { background-color: #201f1d !important; }
+    .btn-icon-wrapper.nav .arrow-icon {
+      opacity: 0 !important;
+      visibility: hidden !important;
+    }
+    .btn-icon-wrapper.nav::after {
+      content: "" !important;
+      position: absolute !important;
+      inset: 0 !important;
+      z-index: 1 !important;
+      pointer-events: none !important;
+      background-color: #ffffff !important;
+      mix-blend-mode: difference !important;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5.5 18.5 18.5 5.5M8.5 5.5H18.5V15.5'/%3E%3C/svg%3E") center / 55% 55% no-repeat;
+              mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5.5 18.5 18.5 5.5M8.5 5.5H18.5V15.5'/%3E%3C/svg%3E") center / 55% 55% no-repeat;
+    }
 
     /* Latest Insights slider controls: keep prev/next on the left and push the
        "View all" button to the far right. */
