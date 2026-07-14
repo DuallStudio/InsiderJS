@@ -290,10 +290,23 @@ document.addEventListener("DOMContentLoaded", function () {
     .slider-btn-wrap { align-items: center !important; }
     .slider-btn-wrap .button-icon { margin-left: auto !important; }
 
-    /* Latest Insights cards: make every card fill its slide (desktop base CSS
-       pins a fixed 27.8125em width) so they're all the same size. */
-    .swiper.blog .swiper-slide { height: auto !important; }
-    .swiper.blog .blog-section-item { width: 100% !important; height: 100% !important; }
+    /* Latest Insights cards: force every card to match the tallest one.
+       Swiper gives each .swiper-slide height:100%, which resolves to "auto"
+       against the wrapper's content-based height, so short cards never grow.
+       Overriding the slide to height:auto lets the flex wrapper stretch every
+       slide to the tallest, and a flex chain pushes that full height down into
+       the .blog-section-item beige box. */
+    .swiper.blog .swiper-wrapper { align-items: stretch !important; }
+    .swiper.blog .swiper-slide {
+      height: auto !important;
+      display: flex !important;
+    }
+    .swiper.blog .blog-section-item {
+      width: 100% !important;
+      height: auto !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
   `;
   document.head.appendChild(style);
 
