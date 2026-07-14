@@ -275,7 +275,7 @@ document.addEventListener("DOMContentLoaded", function () {
       grid-area: 1 / 1 !important;
       align-self: center !important;
       justify-self: center !important;
-      width: 55% !important;
+      width: 78% !important;
       height: auto !important;
       aspect-ratio: 1 / 1 !important;
       z-index: 1 !important;
